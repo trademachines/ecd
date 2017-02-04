@@ -1,0 +1,27 @@
+{
+  "devDependencies": {
+    "coveralls": "^2.11.15",
+    "eslint": "^3.14.0",
+    "eslint-config-google": "^0.7.1",
+    "istanbul": "^0.4.5",
+    "jasmine": "^2.5.3",
+    "jasmine-spec-reporter": "^3.2.0",
+    "mock-fs": "^3.12.1"
+  },
+  "dependencies": {
+    "ajv": "^4.10.4",
+    "aws-sdk": "^2.7.21",
+    "commander": "^2.9.0",
+    "ffi": "^2.2.0",
+    "fs-extra": "^1.0.0",
+    "fs-promise": "^1.0.0",
+    "glob-stream": "^5.3.5",
+    "lodash": "^4.17.4",
+    "unzip": "^0.1.11"
+  },
+  "scripts": {
+    "test": "JASMINE_CONFIG_PATH=jasmine.json istanbul cover jasmine",
+    "coveralls": "cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
+    "posttest": "eslint src/"
+  }
+}

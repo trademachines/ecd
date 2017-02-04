@@ -1,0 +1,263 @@
+{
+  "title": "ECS Task Definition",
+  "type": "object",
+  "properties": {
+    "family": { "type": "string" },
+    "taskRoleArn": { "type": "string" },
+    "networkMode": { "type": "string" },
+    "containerDefinitions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/container" }
+    },
+    "volumes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/volume" }
+    }
+  },
+  "definitions": {
+    "container": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "image": {
+          "type": "string"
+        },
+        "memory": {
+          "type": ["integer", "string"]
+        },
+        "memoryReservation": {
+          "type": ["integer", "string"]
+        },
+        "links": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "dnsServers": {
+          "type": "boolean"
+        },
+        "dnsSearchDomains": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "extraHosts": {
+          "type": "object",
+          "properties": {
+            "hostname": {
+              "type": "string"
+            },
+            "ipAddress": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "hostname",
+            "ipAddress"
+          ]
+        },
+        "readonlyRootFilesystem": {
+          "type": "boolean"
+        },
+        "mountPoints": {
+          "type": "array",
+          "items": {"$ref": "#/definitions/mountPoint"}
+        },
+        "volumesFrom": {
+          "type": "object",
+          "properties": {
+            "sourceContainer": {
+              "type": "string"
+            },
+            "readOnly": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "sourceContainer"
+          ]
+        },
+        "user": {
+          "type": "string"
+        },
+        "disableNetworking": { },
+        "privileged": {
+          "type": "boolean"
+        },
+        "dockerSecurityOptions": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "dockerLabels": {
+          "type": "object"
+        },
+        "ulimits": {
+          "type":"array",
+          "items": {"$ref": "#/definitions/ulimit"}
+        },
+        "logConfiguration": {
+          "type": [
+            {"$ref": "#/definitions/logConfigAws"},
+            {"$ref": "#/definitions/logConfigOther"}
+          ]
+        },
+        "portMappings": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/portMapping" }
+        },
+        "cpu": {
+          "type": ["integer", "string"]
+        },
+        "essential": {
+          "type": "boolean"
+        },
+        "entryPoint": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "command": {
+          "$ref": "#/definitions/stringArray"
+        },
+        "workingDirectory": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/envVariable"
+          }
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "ulimit": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "enum": [
+            "core", "cpu", "data", "fsize", "locks", "memlock", "msgqueue", "nice", "nofile",
+            "nproc",
+            "rss", "rtprio", "rttime", "sigpending", "stack"
+          ]
+        },
+        "hardLimit": {
+          "type": ["integer", "string"]
+        },
+        "softLimit": {
+          "type": ["integer", "string"]
+        },
+        "options": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "name", "hardLimit", "softLimit"
+      ]
+    },
+    "portMapping": {
+      "type": "object",
+      "properties": {
+        "hostPort": {
+          "type": ["integer", "string"]
+        },
+        "containerPort": {
+          "type": ["integer", "string"]
+        },
+        "protocol": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "containerPort"
+      ]
+    },
+    "volume": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "host": {
+          "type": "object",
+          "properties": {
+            "sourcePath": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "mountPoint": {
+      "type": "object",
+      "properties": {
+        "sourceVolume": {
+          "type": "string"
+        },
+        "containerPath": {
+          "type": "string"
+        },
+        "readOnly": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "sourceVolume",
+        "containerPath"
+      ]
+    },
+    "envVariable": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "logConfigAws": {
+      "properties": {
+        "logDriver": {
+          "enum": ["awslogs"]
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "awslogs-region": { "type": "string" },
+            "awslogs-group": { "type": "string" },
+            "awslogs-stream-prefix": {
+              "type": "string",
+              "maxLength": 50
+            }
+          },
+          "required": ["awslogs-region", "awslogs-group"]
+        }
+      },
+      "required": ["logDriver"]
+    },
+    "logConfigOther": {
+      "type": "object",
+      "properties": {
+        "logDriver": {
+          "enum": ["json-file", "syslog", "journald", "gelf", "fluentd"]
+        },
+        "options": { "type": "object" }
+      },
+      "required": ["logDriver"]
+    }
+  },
+  "required": [
+    "family",
+    "containerDefinitions"
+  ]
+}

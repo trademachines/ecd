@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  ecd:
+    image: trademachines/node:4.3
+    entrypoint: bash
+    working_dir: /usr/share/app
+    volumes:
+      - ~/.aws:/root/.aws
+      - ~/.cache/yarn:/root/.cache/yarn
+      - ./:/usr/share/app
