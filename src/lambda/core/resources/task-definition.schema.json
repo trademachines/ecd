@@ -95,7 +95,7 @@
           "items": {"$ref": "#/definitions/ulimit"}
         },
         "logConfiguration": {
-          "type": [
+          "anyOf": [
             {"$ref": "#/definitions/logConfigAws"},
             {"$ref": "#/definitions/logConfigOther"}
           ]
@@ -226,6 +226,7 @@
       }
     },
     "logConfigAws": {
+      "type": "object",
       "properties": {
         "logDriver": {
           "enum": ["awslogs"]
