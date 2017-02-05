@@ -23,7 +23,7 @@ const callApi = (method, environment, service) => {
         return Promise.reject(res.error);
       }
 
-      return Promise.resolve(res);
+      return Promise.resolve(res.result);
     })
     .catch((err) => finish(err, 1));
 };
@@ -57,6 +57,14 @@ program
         .then(() => console.log(
           `Successfully deployed service '${service}' in environment '${environment}'`)
         );
+    }
+  );
+
+program
+  .command('dump <environment> <service>')
+  .action((environment, service) => {
+      callApi('dump', environment, service)
+        .then((config) => console.log(JSON.stringify(config, null, 2)));
     }
   );
 

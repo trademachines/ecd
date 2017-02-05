@@ -70,6 +70,14 @@ module.exports.EcdService = class {
   /**
    * @param {object} context
    * @return {Promise}
+   */
+  dump(context) {
+    return this._createConfig(context);
+  }
+
+  /**
+   * @param {object} context
+   * @return {Promise}
    * @private
    */
   _prepare(context) {
