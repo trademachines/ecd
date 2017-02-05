@@ -157,6 +157,19 @@ describe('Config building', () => {
         done.fail
       );
     });
+
+    it('adds explicit vars from context', (done) => {
+      spyOn(libuclParser, 'addVariable');
+
+      configBuilder.build([], {service: 'my-service', vars: ["SOME=THING", "FOO=BAR"]}).then(
+        () => {
+          expect(libuclParser.addVariable).toHaveBeenCalledWith('SOME', 'THING');
+          expect(libuclParser.addVariable).toHaveBeenCalledWith('FOO', 'BAR');
+          done();
+        },
+        done.fail
+      );
+    });
   });
 
   describe('config file handling', () => {

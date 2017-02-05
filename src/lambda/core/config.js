@@ -58,6 +58,12 @@ class ConfigBuilder {
 
       this._addMultipleVars(parser, context.varContent);
 
+      if (context.vars) {
+        context.vars.forEach((v) => {
+          this._addMultipleVars(parser, v);
+        });
+      }
+
       files.forEach((f) => {
         switch (f.type) {
           case 'variable':
