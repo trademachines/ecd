@@ -33,15 +33,23 @@ const list = (val, memo) => {
   return memo;
 };
 
+/* eslint-disable max-len */
+const regionDescription     = 'Sets the AWS region where the function resides. Defaults to \'eu-west-1\'.';
+const functionDescription   = 'Set AWS Lambda function name that will be called. Defaults to \'ecd\'.';
+const configFileDescription = 'Specify a filename that will be used to compute the ECS Task Definition.';
+const varFileDescription    = 'Specify a filename where additional variables are stored. It should only contain lines with KEY=VALUE.';
+/* eslint-enable max-len */
+
 program
-  .option('--region <value>', 'Set region', 'eu-west-1')
-  .option('--function <value>', 'Set function name', 'ecd')
-  .option('--config-file <value>', 'Config')
-  .option('--var-file <value>', 'Variable file')
-  .option('--var <value>', 'Variables', list, []);
+  .option('--region <value>', regionDescription, 'eu-west-1')
+  .option('--function <value>', functionDescription, 'ecd')
+  .option('--config-file <value>', configFileDescription)
+  .option('--var-file <value>', varFileDescription)
+  .option('--var <value>', 'Add additional variables in the KEY=VALUE format.', list, []);
 
 program
   .command('validate <environment> <service>')
+  .description('Validates the generated ECS Task Definition against a curated schema.')
   .action((environment, service) => {
       callApi('validate', environment, service)
         .then(() => console.log(
@@ -52,6 +60,7 @@ program
 
 program
   .command('deploy <environment> <service>')
+  .description('Deploys the generated ECS Task Definition.')
   .action((environment, service) => {
       callApi('deploy', environment, service)
         .then(() => console.log(
@@ -62,6 +71,7 @@ program
 
 program
   .command('dump <environment> <service>')
+  .description('Outputs the generated ECS Task Definition without any validation.')
   .action((environment, service) => {
       callApi('dump', environment, service)
         .then((config) => console.log(JSON.stringify(config, null, 2)));
@@ -69,3 +79,7 @@ program
   );
 
 program.parse(process.argv);
+
+if (!process.argv.slice(2).length) {
+  program.outputHelp();
+}
