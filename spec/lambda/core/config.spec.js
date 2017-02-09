@@ -235,4 +235,31 @@ describe('Config building', () => {
       );
     });
   });
+
+  describe('additional config modification', () => {
+    it('calls modifier during config assembly', (done) => {
+      class Modifer {
+        constructor(number) {
+          this.number = number;
+        }
+
+        modify(config) {
+          config.containerDefinitions.push({modifier: this.number});
+          return Promise.resolve(config);
+        }
+      }
+      spyOn(libuclParser, 'asJson').and.returnValue({'my-service': {containerDefinitions: []}});
+
+      configBuilder.addModifier(new Modifer(1));
+      configBuilder.addModifier(new Modifer(2));
+      configBuilder.build([], {environment: 'my-env', service: 'my-service'}).then(
+        (config) => {
+          expect(config.containerDefinitions).toEqual([{modifier: 1}, {modifier: 2}]);
+
+          done();
+        },
+        done.fail
+      );
+    });
+  });
 });

@@ -23,6 +23,14 @@ class ConfigBuilder {
   constructor(kms, libuclFactory) {
     this.kms           = kms;
     this.libuclFactory = libuclFactory;
+    this.modifiers     = [];
+  }
+
+  /**
+   * @param {*} modifier
+   */
+  addModifier(modifier) {
+    this.modifiers.push(modifier);
   }
 
   /**
@@ -34,8 +42,13 @@ class ConfigBuilder {
     const parser = this.libuclFactory.create();
 
     return this._assemble(parser, files, context)
-      .then((config) => Promise.resolve(config))
       .then((config) => this._decryptSecureValues(config))
+      .then((config) => {
+        return this.modifiers.reduce(
+          (p, m) => p.then((c) => m.modify(c)),
+          Promise.resolve(config)
+        );
+      })
       .catch((err) => Promise.reject(err))
       ;
   }
