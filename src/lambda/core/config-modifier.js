@@ -11,7 +11,7 @@ class EnvironmentFromHashConfigModifier {
    */
   modify(config) {
     if (_.has(config, 'containerDefinitions') && _.isArray(config.containerDefinitions)) {
-      config.containerDefinitions = _.mapValues(config.containerDefinitions, (v) => {
+      config.containerDefinitions = _.map(config.containerDefinitions, (v) => {
         if (_.isPlainObject(v.environment)) {
           v.environment = _.map(v.environment, (envValue, envKey) => {
             return {name: envKey, value: envValue};
