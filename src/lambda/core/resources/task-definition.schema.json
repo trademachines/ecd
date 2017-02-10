@@ -64,18 +64,8 @@
           "items": {"$ref": "#/definitions/mountPoint"}
         },
         "volumesFrom": {
-          "type": "object",
-          "properties": {
-            "sourceContainer": {
-              "type": "string"
-            },
-            "readOnly": {
-              "type": "boolean"
-            }
-          },
-          "required": [
-            "sourceContainer"
-          ]
+          "type": "array",
+          "items": {"$ref": "#/definitions/volumeFrom"}
         },
         "user": {
           "type": "string"
@@ -206,6 +196,20 @@
       "required": [
         "sourceVolume",
         "containerPath"
+      ]
+    },
+    "volumeFrom": {
+      "type": "object",
+      "properties": {
+        "sourceContainer": {
+          "type": "string"
+        },
+        "readOnly": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "sourceContainer"
       ]
     },
     "envVariable": {
