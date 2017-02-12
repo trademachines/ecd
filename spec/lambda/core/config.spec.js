@@ -52,7 +52,7 @@ describe('Config building', () => {
         }
       });
 
-      configBuilder.build(files, {environment: 'my-env', service: 'my-service'}).then(
+      configBuilder.build(files, {cluster: 'my-cluster', service: 'my-service'}).then(
         () => {
           expect(libuclParser.addVariable).toHaveBeenCalledWith('SOMEVAR', 'some-value');
           done();
@@ -70,7 +70,7 @@ describe('Config building', () => {
         }
       });
 
-      configBuilder.build(files, {environment: 'my-env', service: 'my-service'}).then(
+      configBuilder.build(files, {cluster: 'my-cluster', service: 'my-service'}).then(
         () => {
           expect(libuclParser.addVariable).toHaveBeenCalledWith('FIRST_VAR', 'first-value');
           expect(libuclParser.addVariable).toHaveBeenCalledWith('SECOND_VAR', 'second-value');
@@ -89,7 +89,7 @@ describe('Config building', () => {
         }
       });
 
-      configBuilder.build(files, {environment: 'my-env', service: 'my-service'}).then(
+      configBuilder.build(files, {cluster: 'my-cluster', service: 'my-service'}).then(
         () => {
           expect(libuclParser.addVariable).not.toHaveBeenCalledWith('', '');
           expect(libuclParser.addVariable).not.toHaveBeenCalledWith(jasmine.anything(), '');
@@ -109,7 +109,7 @@ describe('Config building', () => {
         }
       });
 
-      configBuilder.build(files, {environment: 'my-env', service: 'my-service'}).then(
+      configBuilder.build(files, {cluster: 'my-cluster', service: 'my-service'}).then(
         () => {
           expect(libuclParser.addVariable).toHaveBeenCalledWith('FIRST_VAR', 'first=value');
           done();
@@ -118,12 +118,12 @@ describe('Config building', () => {
       );
     });
 
-    it('adds environment+service as vars', (done) => {
+    it('adds cluster+service as vars', (done) => {
       spyOn(libuclParser, 'addVariable');
 
-      configBuilder.build([], {environment: 'my-env', service: 'my-service'}).then(
+      configBuilder.build([], {cluster: 'my-cluster', service: 'my-service'}).then(
         () => {
-          expect(libuclParser.addVariable).toHaveBeenCalledWith('ENVIRONMENT', 'my-env');
+          expect(libuclParser.addVariable).toHaveBeenCalledWith('CLUSTER', 'my-cluster');
           expect(libuclParser.addVariable).toHaveBeenCalledWith('SERVICE', 'my-service');
           done();
         },
@@ -186,7 +186,7 @@ describe('Config building', () => {
         }
       });
 
-      configBuilder.build(files, {environment: 'my-env', service: 'my-service'}).then(
+      configBuilder.build(files, {cluster: 'my-cluster', service: 'my-service'}).then(
         () => {
           expect(libuclParser.addString).toHaveBeenCalledTimes(1);
           expect(libuclParser.addString).toHaveBeenCalledWith('containerDefinitions = []');
@@ -216,7 +216,7 @@ describe('Config building', () => {
       };
       spyOn(libuclParser, 'asJson').and.returnValue(json);
 
-      configBuilder.build([], {environment: 'my-env', service: 'my-service'}).then(
+      configBuilder.build([], {cluster: 'my-cluster', service: 'my-service'}).then(
         (config) => {
           expect(config).toEqual(jasmine.objectContaining({
             'scalar': kmsDecryptedValue,
@@ -252,7 +252,7 @@ describe('Config building', () => {
 
       configBuilder.addModifier(new Modifer(1));
       configBuilder.addModifier(new Modifer(2));
-      configBuilder.build([], {environment: 'my-env', service: 'my-service'}).then(
+      configBuilder.build([], {cluster: 'my-cluster', service: 'my-service'}).then(
         (config) => {
           expect(config.containerDefinitions).toEqual([{modifier: 1}, {modifier: 2}]);
 

@@ -27,17 +27,17 @@ class FileFinder {
   }
 
   /**
-   * @param {string} environment
+   * @param {string} cluster
    * @param {string} service
    * @return {Promise.<File[]>}
    */
-  find(environment, service) {
+  find(cluster, service) {
     return this.s3Sync.sync()
       .then((path) => {
         return Promise.all(
           [
-            this._findVariableFiles(path, environment, service),
-            this._findConfigFiles(path, environment, service)
+            this._findVariableFiles(path, cluster, service),
+            this._findConfigFiles(path, cluster, service)
           ]
         ).then((files) => _.flatten(files));
       });
@@ -45,31 +45,31 @@ class FileFinder {
 
   /**
    * @param {string} path
-   * @param {string} environment
+   * @param {string} cluster
    * @param {string} service
    * @return {Promise.<File[]>}
    * @private
    */
-  _findVariableFiles(path, environment, service) {
+  _findVariableFiles(path, cluster, service) {
     return this._findFiles(path, 'variable', [
       'globals/var/*',
-      `environments/${environment}/var/*`,
-      `services/${service}/var/*`, `services/${service}/environments/${environment}/var/*`
+      `clusters/${cluster}/var/*`,
+      `services/${service}/var/*`, `services/${service}/clusters/${cluster}/var/*`
     ]);
   }
 
   /**
    * @param {string} path
-   * @param {string} environment
+   * @param {string} cluster
    * @param {string} service
    * @return {Promise.<File[]>}
    * @private
    */
-  _findConfigFiles(path, environment, service) {
+  _findConfigFiles(path, cluster, service) {
     return this._findFiles(path, 'config', [
       'globals/*.conf',
-      `environments/${environment}/*.conf`,
-      `services/${service}/*.conf`, `services/${service}/environments/${environment}/*.conf`
+      `clusters/${cluster}/*.conf`,
+      `services/${service}/*.conf`, `services/${service}/clusters/${cluster}/*.conf`
     ]);
   }
 

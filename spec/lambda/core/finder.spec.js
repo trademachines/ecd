@@ -24,7 +24,7 @@ describe('Finding files', () => {
     const find = (expectedPath, mockConfig, done) => {
       mock(mockConfig);
 
-      finder.find('my-env', 'my-service').then(
+      finder.find('my-cluster', 'my-service').then(
         (files) => {
           expect(files.length).toEqual(2);
           expect(files[0]).toEqual(new File('variable', `/data/${expectedPath}/bar.properties`));
@@ -47,12 +47,12 @@ describe('Finding files', () => {
       }, done);
     });
 
-    it('finds all files in environment variables dir', (done) => {
-      find('environments/my-env/var', {
+    it('finds all files in cluster variables dir', (done) => {
+      find('clusters/my-cluster/var', {
         '/data': {
           'some-file.txt': 'file content here',
-          'environments': {
-            'my-env': {
+          'clusters': {
+            'my-cluster': {
               'var': {'foo.var': '', 'bar.properties': ''}
             }
           }
@@ -73,14 +73,14 @@ describe('Finding files', () => {
       }, done);
     });
 
-    it('finds all files in service+environment variables dir', (done) => {
-      find('services/my-service/environments/my-env/var', {
+    it('finds all files in service+cluster variables dir', (done) => {
+      find('services/my-service/clusters/my-cluster/var', {
         '/data': {
           'some-file.txt': 'file content here',
           'services': {
             'my-service': {
-              'environments': {
-                'my-env': {
+              'clusters': {
+                'my-cluster': {
                   'var': {'foo.var': '', 'bar.properties': ''}
                 }
               }
@@ -95,7 +95,7 @@ describe('Finding files', () => {
     const find = (expectedPath, mockConfig, done) => {
       mock(mockConfig);
 
-      finder.find('my-env', 'my-service').then(
+      finder.find('my-cluster', 'my-service').then(
         (files) => {
           expect(files.length).toEqual(2);
           expect(files[0]).toEqual(new File('config', `/data/${expectedPath}/one.conf`));
@@ -119,11 +119,11 @@ describe('Finding files', () => {
       }, done);
     });
 
-    it('finds config files in environment config dir', (done) => {
-      find('environments/my-env', {
+    it('finds config files in cluster config dir', (done) => {
+      find('clusters/my-cluster', {
         '/data': {
-          'environments': {
-            'my-env': {
+          'clusters': {
+            'my-cluster': {
               'one.conf': '',
               'two.conf': '',
               'not.found': ''
@@ -147,13 +147,13 @@ describe('Finding files', () => {
       }, done);
     });
 
-    it('finds all files in service+environment variables dir', (done) => {
-      find('services/my-service/environments/my-env', {
+    it('finds all files in service+cluster variables dir', (done) => {
+      find('services/my-service/clusters/my-cluster', {
         '/data': {
           'services': {
             'my-service': {
-              'environments': {
-                'my-env': {
+              'clusters': {
+                'my-cluster': {
                   'one.conf': '',
                   'two.conf': '',
                   'not.found': ''
@@ -175,12 +175,12 @@ describe('Finding files', () => {
           },
           'global.conf': ''
         },
-        'environments': {
-          'my-env': {
+        'clusters': {
+          'my-cluster': {
             'var': {
-              'my-env.var': ''
+              'my-cluster.var': ''
             },
-            'my-env.conf': ''
+            'my-cluster.conf': ''
           }
         },
         'services': {
@@ -189,12 +189,12 @@ describe('Finding files', () => {
               'my-service.var': ''
             },
             'my-service.conf': '',
-            'environments': {
-              'my-env': {
+            'clusters': {
+              'my-cluster': {
                 'var': {
-                  'my-service-env.var': ''
+                  'my-service-cluster.var': ''
                 },
-                'my-service-env.conf': ''
+                'my-service-cluster.conf': ''
               }
             }
           }
@@ -202,18 +202,18 @@ describe('Finding files', () => {
       }
     });
 
-    finder.find('my-env', 'my-service').then(
+    finder.find('my-cluster', 'my-service').then(
       (files) => {
         expect(files.length).toEqual(8);
         expect(files).toEqual([
           new File('variable', `/data/globals/var/global.var`),
-          new File('variable', `/data/environments/my-env/var/my-env.var`),
+          new File('variable', `/data/clusters/my-cluster/var/my-cluster.var`),
           new File('variable', `/data/services/my-service/var/my-service.var`),
-          new File('variable', `/data/services/my-service/environments/my-env/var/my-service-env.var`),
+          new File('variable', `/data/services/my-service/clusters/my-cluster/var/my-service-cluster.var`),
           new File('config', `/data/globals/global.conf`),
-          new File('config', `/data/environments/my-env/my-env.conf`),
+          new File('config', `/data/clusters/my-cluster/my-cluster.conf`),
           new File('config', `/data/services/my-service/my-service.conf`),
-          new File('config', `/data/services/my-service/environments/my-env/my-service-env.conf`)
+          new File('config', `/data/services/my-service/clusters/my-cluster/my-service-cluster.conf`)
         ]);
 
         done();

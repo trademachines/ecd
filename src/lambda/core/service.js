@@ -48,7 +48,7 @@ module.exports.EcdService = class {
    */
   deploy(context) {
     return this._prepare(context)
-      .then((config) => this.deployment.deploy(config, context.environment, context.service))
+      .then((config) => this.deployment.deploy(config, context.cluster, context.service))
       .catch((err) => {
         if (!err instanceof ApplicationError) {
           err = new DeploymentError(err);
@@ -92,7 +92,7 @@ module.exports.EcdService = class {
    */
   _createConfig(context) {
     return this._assertContext(context)
-      .then(() => this.finder.find(context.environment, context.service))
+      .then(() => this.finder.find(context.cluster, context.service))
       .then((files) => this.configBuilder.build(files, context))
       ;
   }

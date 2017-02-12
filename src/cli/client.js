@@ -25,20 +25,20 @@ module.exports.ApiClient = class ApiClient {
 
   /**
    * @param {string} method
-   * @param {string} environment
+   * @param {string} cluster
    * @param {string} service
    * @param {string} configContent
    * @param {string} varContent
    * @param {string[]} vars
    * @return {Promise}
    */
-  call(method, environment, service, configContent, varContent, vars) {
+  call(method, cluster, service, configContent, varContent, vars) {
     const lambda     = this._getLambdaClient();
     const readFiles  = [this._readFile(configContent), this._readFile(varContent)];
     const callLambda = (contents) => {
       const params = [
         {
-          environment: environment,
+          cluster: cluster,
           service: service,
           configContent: contents[0],
           varContent: contents[1],

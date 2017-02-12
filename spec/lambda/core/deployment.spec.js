@@ -47,7 +47,7 @@ describe('Deployment service', () => {
     const config = {my: 'config'};
     spyOn(ecs, 'registerTaskDefinition').and.callFake(_.partial(promiseReject, {errors: []}));
 
-    deployment.deploy(config, 'my-env', 'my-service').then(
+    deployment.deploy(config, 'my-cluster', 'my-service').then(
       done.fail,
       () => {
         expect(ecs.registerTaskDefinition).toHaveBeenCalledWith(config);
@@ -63,11 +63,11 @@ describe('Deployment service', () => {
     spyOn(ecs, 'updateService')
       .and.callFake(_.partial(promiseReject, {}));
 
-    deployment.deploy({}, 'my-env', 'my-service').then(
+    deployment.deploy({}, 'my-cluster', 'my-service').then(
       done.fail,
       () => {
         expect(ecs.updateService).toHaveBeenCalledWith({
-          cluster: 'my-env',
+          cluster: 'my-cluster',
           service: 'my-service',
           taskDefinition: 'arn'
         });
@@ -84,10 +84,10 @@ describe('Deployment service', () => {
       .and.callFake(_.partial(promiseResolve, {}));
     spyOn(eventDispatcher, 'succeeded').and.callFake(_.partial(promiseResolve, {}));
 
-    deployment.deploy({}, 'my-env', 'my-service').then(
+    deployment.deploy({}, 'my-cluster', 'my-service').then(
       () => {
         expect(eventDispatcher.succeeded).toHaveBeenCalledWith({
-          cluster: 'my-env',
+          cluster: 'my-cluster',
           service: 'my-service',
           taskDefinition: 'arn'
         });

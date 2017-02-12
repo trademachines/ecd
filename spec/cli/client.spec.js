@@ -43,7 +43,7 @@ describe('Api Client', () => {
     spyOn(lambda, 'invoke').and.callThrough();
     client.configure('my-region', 'my-fn');
 
-    client.call('my-method', 'env', 'service').then(
+    client.call('my-method', 'cluster', 'service').then(
       (res) => {
         expect(lambda.invoke)
           .toHaveBeenCalledWith(jasmine.objectContaining({FunctionName: 'my-fn'}));
@@ -54,18 +54,18 @@ describe('Api Client', () => {
     );
   });
 
-  it('puts environment and service into params', (done) => {
+  it('puts cluster and service into params', (done) => {
     spyOn(AWS, 'Lambda').and.returnValue(lambda);
     spyOn(lambda, 'invoke').and.callThrough();
     client.configure('my-region', 'my-fn');
 
-    client.call('my-method', 'env', 'service').then(
+    client.call('my-method', 'my-cluster', 'my-service').then(
       (res) => {
         expect(lambda.invoke).toHaveBeenCalled();
 
         const payload = lambda.invoke.calls.argsFor(0)[0].Payload;
-        expect(payload).toContain('"environment":"env"');
-        expect(payload).toContain('"service":"service"');
+        expect(payload).toContain('"cluster":"my-cluster"');
+        expect(payload).toContain('"service":"my-service"');
 
         done();
       },
@@ -81,7 +81,7 @@ describe('Api Client', () => {
     spyOn(lambda, 'invoke').and.callThrough();
     client.configure('my-region', 'my-fn');
 
-    client.call('my-method', 'env', 'service', 'service.conf', 'service.properties').then(
+    client.call('my-method', 'cluster', 'service', 'service.conf', 'service.properties').then(
       () => {
         expect(lambda.invoke).toHaveBeenCalled();
 
@@ -101,8 +101,8 @@ describe('Api Client', () => {
     client.configure('my-region', 'my-fn');
 
     Promise.all([
-      client.call('my-method', 'env', 'service', 'service.conf', 'service.properties'),
-      client.call('my-method', 'env', 'service', 'service.conf', 'service.properties')
+      client.call('my-method', 'cluster', 'service', 'service.conf', 'service.properties'),
+      client.call('my-method', 'cluster', 'service', 'service.conf', 'service.properties')
     ]).then(
       () => {
         expect(lambda.invoke).toHaveBeenCalledTimes(2);
@@ -123,7 +123,7 @@ describe('Api Client', () => {
     client.configure('my-region', 'my-fn');
     lambdaPayload = {foo: 'bar'};
 
-    client.call('my-method', 'env', 'service', 'service.conf', 'service.properties')
+    client.call('my-method', 'cluster', 'service', 'service.conf', 'service.properties')
       .then(
         (response) => {
           expect(response).toEqual(lambdaPayload);

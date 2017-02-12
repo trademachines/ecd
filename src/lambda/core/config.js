@@ -63,8 +63,7 @@ class ConfigBuilder {
   _assemble(parser, files, context) {
     try {
       // register context vars
-      parser.addVariable('ENVIRONMENT', context.environment);
-      parser.addVariable('CLUSTER', context.environment);
+      parser.addVariable('CLUSTER', context.cluster);
       parser.addVariable('SERVICE', context.service);
 
       parser.addVariable('AWS_REGION', process.env.AWS_REGION);

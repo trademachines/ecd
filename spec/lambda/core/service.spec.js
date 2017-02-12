@@ -39,12 +39,12 @@ describe('ECD Service', () => {
   it('only accepts valid context objects', () => {
   });
 
-  it('finds files with environment and service', (done) => {
+  it('finds files with cluster and service', (done) => {
     spyOn(finder, 'find').and.callThrough();
 
-    ecdService.validate({environment: 'my-env', service: 'my-service'}).then(
+    ecdService.validate({cluster: 'my-cluster', service: 'my-service'}).then(
       () => {
-        expect(finder.find).toHaveBeenCalledWith('my-env', 'my-service');
+        expect(finder.find).toHaveBeenCalledWith('my-cluster', 'my-service');
         done();
       },
       done.fail
@@ -56,7 +56,7 @@ describe('ECD Service', () => {
       validSchema = false;
       ajv.errors  = [{something: 'went wrong'}];
 
-      ecdService.validate({environment: 'my-env', service: 'my-service'}).then(
+      ecdService.validate({cluster: 'my-cluster', service: 'my-service'}).then(
         done.fail,
         (err) => {
           expect(err.details.errors).toEqual(ajv.errors);

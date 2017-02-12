@@ -11,13 +11,13 @@ const finish = (data, exitCode) => {
   process.exit(exitCode);
 };
 
-const callApi = (method, environment, service) => {
+const callApi = (method, cluster, service) => {
   const configFile = program.configFile;
   const varFile    = program.varFile;
   const variables  = program.var;
 
   apiClient.configure(program.region, program.function);
-  return apiClient.call(method, environment, service, configFile, varFile, variables)
+  return apiClient.call(method, cluster, service, configFile, varFile, variables)
     .then((res) => {
       if (_.has(res, 'error')) {
         return Promise.reject(res.error);
@@ -48,32 +48,32 @@ program
   .option('--var <value>', 'Add additional variables in the KEY=VALUE format.', list, []);
 
 program
-  .command('validate <environment> <service>')
+  .command('validate <cluster> <service>')
   .description('Validates the generated ECS Task Definition against a curated schema.')
-  .action((environment, service) => {
-      callApi('validate', environment, service)
+  .action((cluster, service) => {
+      callApi('validate', cluster, service)
         .then(() => console.log(
-          `Successfully validated service '${service}' in environment '${environment}'`)
+          `Successfully validated service '${service}' in cluster '${cluster}'`)
         );
     }
   );
 
 program
-  .command('deploy <environment> <service>')
+  .command('deploy <cluster> <service>')
   .description('Deploys the generated ECS Task Definition.')
-  .action((environment, service) => {
-      callApi('deploy', environment, service)
+  .action((cluster, service) => {
+      callApi('deploy', cluster, service)
         .then(() => console.log(
-          `Successfully deployed service '${service}' in environment '${environment}'`)
+          `Successfully deployed service '${service}' in cluster '${cluster}'`)
         );
     }
   );
 
 program
-  .command('dump <environment> <service>')
+  .command('dump <cluster> <service>')
   .description('Outputs the generated ECS Task Definition without any validation.')
-  .action((environment, service) => {
-      callApi('dump', environment, service)
+  .action((cluster, service) => {
+      callApi('dump', cluster, service)
         .then((config) => console.log(JSON.stringify(config, null, 2)));
     }
   );

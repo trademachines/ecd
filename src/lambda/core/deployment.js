@@ -12,11 +12,11 @@ module.exports.DeploymentService = class {
 
   /**
    * @param {object} config
-   * @param {string} environment
+   * @param {string} cluster
    * @param {string} service
    * @return {Promise}
    */
-  deploy(config, environment, service) {
+  deploy(config, cluster, service) {
     let taskDefArn;
 
     return this.ecs.registerTaskDefinition(config).promise()
@@ -24,14 +24,14 @@ module.exports.DeploymentService = class {
         taskDefArn = registerTaskDefRes.taskDefinition.taskDefinitionArn;
 
         return this.ecs.updateService({
-          cluster: environment,
+          cluster: cluster,
           service: service,
           taskDefinition: taskDefArn
         }).promise();
       })
       .then((x) => {
         const detail = {
-          cluster: environment,
+          cluster: cluster,
           service: service,
           taskDefinition: taskDefArn
         };
