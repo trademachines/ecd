@@ -19,6 +19,10 @@ const callApi = (method, cluster, service) => {
   apiClient.configure(program.region, program.function);
   return apiClient.call(method, cluster, service, configFile, varFile, variables)
     .then((res) => {
+      if (_.has(res, 'errorMessage')) {
+        return Promise.reject(res.errorMessage);
+      }
+
       if (_.has(res, 'error')) {
         return Promise.reject(res.error);
       }
