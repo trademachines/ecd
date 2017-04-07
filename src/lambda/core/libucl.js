@@ -2,6 +2,7 @@
 
 const ffi  = require('ffi');
 const file = __dirname + '/resources/libucl.so';
+const _    = require('lodash');
 
 const bindings = new ffi.Library(file, {
   'ucl_parser_new': ['pointer', ['int']],
@@ -21,6 +22,8 @@ class LibuclParser {
   constructor() {
     this.parser = bindings.ucl_parser_new(0);
     this._checkError();
+    this.vars        = {};
+    this.varsCounter = 0;
   }
 
   /**
@@ -28,7 +31,9 @@ class LibuclParser {
    * @param {string} value
    */
   addVariable(key, value) {
-    bindings.ucl_parser_register_variable(this.parser, key, String(value));
+    const tempVarName = _.padStart(++this.varsCounter, 10, '0');
+    this.vars[key]    = tempVarName;
+    bindings.ucl_parser_register_variable(this.parser, tempVarName, String(value));
     this._checkError();
   }
 
@@ -36,6 +41,10 @@ class LibuclParser {
    * @param {string} content
    */
   addString(content) {
+    const alternatives = _.chain(this.vars).keys().map((x) => `\\b${x}\\b`).join('|').value();
+    const regex        = `\\$\\{(${alternatives})\\}`;
+    content            = content.replace(new RegExp(regex, 'g'), (m, p) => `\$\{${this.vars[p]}\}`);
+
     bindings.ucl_parser_add_chunk(this.parser, content, content.length);
     this._checkError();
   }
