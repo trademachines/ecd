@@ -1,16 +1,10 @@
 'use strict';
 
-const mock      = require('mock-fs');
 const AWS       = require('aws-sdk');
 const ApiClient = require('./../../src/cli/client').ApiClient;
 
 describe('Api Client', () => {
-  const path        = '/my/path';
-  const mockedFs    = {};
-  mockedFs[path]    = {
-    'service.conf': 'service content',
-    'service.properties': 'properties content'
-  };
+  const path        = __dirname + '/_fixtures';
   let lambdaPayload = {};
   let lambda;
   let client;
@@ -24,11 +18,6 @@ describe('Api Client', () => {
       }
     };
     client = new ApiClient(path);
-    mock(mockedFs);
-  });
-
-  afterEach(() => {
-    mock.restore();
   });
 
   it('uses configured region', () => {

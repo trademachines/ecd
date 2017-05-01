@@ -2,7 +2,6 @@
 
 const EnvironmentFromHashConfigModifier = require(
   './../../../src/lambda/core/config-modifier').EnvironmentFromHashConfigModifier;
-const mock                              = require('mock-fs');
 
 describe('Config modifications', () => {
 

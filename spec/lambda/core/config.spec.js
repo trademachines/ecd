@@ -1,7 +1,7 @@
 'use strict';
 
 const ConfigBuilder = require('./../../../src/lambda/core/config').ConfigBuilder;
-const mock          = require('mock-fs');
+const fixtureDir    = __dirname + '/_fixtures/config';
 
 describe('Config building', () => {
   let libuclParser;
@@ -9,6 +9,9 @@ describe('Config building', () => {
   let kms;
   let kmsDecryptedValue;
   let configBuilder;
+  const f = (f) => {
+    return `${fixtureDir}/${f}`;
+  };
 
   beforeEach(() => {
     kms           = {
@@ -23,9 +26,9 @@ describe('Config building', () => {
     libuclParser  = {
       addVariable: () => {
       },
-      addString: () => {
+      addString:   () => {
       },
-      asJson: () => {
+      asJson:      () => {
         return {'my-service': {}};
       }
     };
@@ -38,19 +41,12 @@ describe('Config building', () => {
   });
   afterEach(() => {
     delete process.env.AWS_REGION;
-
-    mock.restore();
   });
 
   describe('variables file handling', () => {
     it('adds var files', (done) => {
       spyOn(libuclParser, 'addVariable');
-      const files = [{type: 'variable', path: '/some/path/SOMEVAR.var'}];
-      mock({
-        '/some/path': {
-          'SOMEVAR.var': 'some-value'
-        }
-      });
+      const files = [{type: 'variable', path: f('SOMEVAR.var')}];
 
       configBuilder.build(files, {cluster: 'my-cluster', service: 'my-service'}).then(
         () => {
@@ -63,12 +59,7 @@ describe('Config building', () => {
 
     it('adds multiple variables for properties files', (done) => {
       spyOn(libuclParser, 'addVariable');
-      const files = [{type: 'variable', path: '/some/path/more-vars.properties'}];
-      mock({
-        '/some/path': {
-          'more-vars.properties': "FIRST_VAR=first-value\nSECOND_VAR=second-value"
-        }
-      });
+      const files = [{type: 'variable', path: f('vars.properties')}];
 
       configBuilder.build(files, {cluster: 'my-cluster', service: 'my-service'}).then(
         () => {
@@ -82,12 +73,7 @@ describe('Config building', () => {
 
     it('strips empty lines for properties files', (done) => {
       spyOn(libuclParser, 'addVariable');
-      const files = [{type: 'variable', path: '/some/path/more-vars.properties'}];
-      mock({
-        '/some/path': {
-          'more-vars.properties': "FIRST_VAR=first-value\n  \n \n"
-        }
-      });
+      const files = [{type: 'variable', path: f('vars-with-empty-lines.properties')}];
 
       configBuilder.build(files, {cluster: 'my-cluster', service: 'my-service'}).then(
         () => {
@@ -102,12 +88,7 @@ describe('Config building', () => {
 
     it('splits variables with equal sign correctly', (done) => {
       spyOn(libuclParser, 'addVariable');
-      const files = [{type: 'variable', path: '/some/path/more-vars.properties'}];
-      mock({
-        '/some/path': {
-          'more-vars.properties': "FIRST_VAR=first=value"
-        }
-      });
+      const files = [{type: 'variable', path: f('vars-with-equal-sign.properties')}];
 
       configBuilder.build(files, {cluster: 'my-cluster', service: 'my-service'}).then(
         () => {
@@ -176,15 +157,9 @@ describe('Config building', () => {
     it('adds files with content', (done) => {
       spyOn(libuclParser, 'addString');
       const files = [
-        {type: 'config', path: '/some/path/empty.conf'},
-        {type: 'config', path: '/some/path/non-empty.conf'},
+        {type: 'config', path: f('empty.conf')},
+        {type: 'config', path: f('non-empty.conf')},
       ];
-      mock({
-        '/some/path': {
-          'empty.conf': '',
-          'non-empty.conf': 'containerDefinitions = []',
-        }
-      });
 
       configBuilder.build(files, {cluster: 'my-cluster', service: 'my-service'}).then(
         () => {
@@ -204,10 +179,10 @@ describe('Config building', () => {
       const json           = {
         'my-service': {
           'scalar': encryptedValue,
-          'array': ['one', 'two', encryptedValue],
+          'array':  ['one', 'two', encryptedValue],
           'object': {
             'scalar': encryptedValue,
-            'array': ['three', encryptedValue],
+            'array':  ['three', encryptedValue],
             'nested': {
               'scalar': encryptedValue
             }
@@ -220,10 +195,10 @@ describe('Config building', () => {
         (config) => {
           expect(config).toEqual(jasmine.objectContaining({
             'scalar': kmsDecryptedValue,
-            'array': ['one', 'two', kmsDecryptedValue],
+            'array':  ['one', 'two', kmsDecryptedValue],
             'object': {
               'scalar': kmsDecryptedValue,
-              'array': ['three', kmsDecryptedValue],
+              'array':  ['three', kmsDecryptedValue],
               'nested': {
                 'scalar': kmsDecryptedValue
               }

@@ -67,7 +67,9 @@ module.exports.ApiClient = class ApiClient {
    * @private
    */
   _getLambdaClient() {
-    const config = {};
+    const config = {
+      apiVersion: '2015-03-31'
+    };
 
     if (this.region) {
       config.region = this.region;

@@ -1,4 +1,4 @@
-FROM trademachines/node-alpine:4.3
+FROM trademachines/node-alpine:6.10
 
 COPY package.json yarn.lock /ecd/
 COPY src/cli /ecd/src/cli

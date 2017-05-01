@@ -1,7 +1,6 @@
 'use strict';
 
 const EcdService = require('./../../../src/lambda/core/service').EcdService;
-const mock       = require('mock-fs');
 
 describe('ECD Service', () => {
   let finder;
@@ -34,7 +33,6 @@ describe('ECD Service', () => {
     };
     ecdService    = new EcdService(finder, configBuilder, ajv);
   });
-  afterEach(mock.restore);
 
   it('only accepts valid context objects', () => {
   });

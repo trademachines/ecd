@@ -2,7 +2,7 @@ services:
   - docker
 language: node_js
 node_js:
-  - '4.3'
+  - '6.10'
 cache: yarn
 env:
   global:
@@ -27,9 +27,9 @@ deploy:
   module_name: index
   handler_name: handle
   role: arn:aws:iam::608300940987:role/lambda-ecd
-  runtime: nodejs4.3
+  runtime: nodejs6.10
   memory_size: 128
-  timeout: 30
+  timeout: 60
   region: eu-west-1
   access_key_id:
     secure: momo3E9AcX4mQfiHgDZ+cCN+aqsBmPCUBIwpFYFNPnqW0BH6EDmNyYRIosu33PI8U3wHXA4S5wxafajyf/+srL21JmRneKqI7Q3jPznlXPGPBDfrFAOm3pkOmjeOaOoAix4uYi/FLZ+BkI0bK8b728+gw7rUCgEHDry64Vqnvg8CQFWBO508VpUfNaB8rU1+edmWRhFf0oai4Lc/qec4ssbcdEClrb32bBm0TItbAArp6AShys9Eb/azQji9bZ1M2J4854XRDtX2O5OwtRAGGmKiXKh+C01iypAIPNV3+DBDLCSog4ExnE83tNJI68kWiuo8ShRdvVEwJzab76A4lJ5qlyM7qn1SgsCS4nhjAh/MOqdysJ8v8I95bp3a4EsYoHAFwZ91+s/cpOPCCYAbZEOUTDrVV6AkqaGN8vpR+qmCHkJ6GPcEuxv0AXZBDcpJIgkp/FxdDmNRrCm8QXleCHi2BzRs22EQRVxIJRRM0NbVcZjhBlUPyBCfv2fplsQoayurWUzPIjuLchghkCy6usm2uYLAYMyP1852Ym5skGWHNaZn7yIk53taQ5gOUaZ3XHDzu4DSNAGR4/3SU8NCOMAkye/zO+isHPtwHaV+Da0MIPSCQSpHLZleAe2eNb3BtWjK1qSU1vUoAyEXQzTwsiVVkTm8u2XWPOnMAVd576w=

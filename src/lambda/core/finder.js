@@ -52,7 +52,7 @@ class FileFinder {
    */
   _findVariableFiles(path, cluster, service) {
     return this._findFiles(path, 'variable', [
-      'globals/var/*',
+      'globals/var/*.*',
       `clusters/${cluster}/var/*`,
       `services/${service}/var/*`, `services/${service}/clusters/${cluster}/var/*`
     ]);
@@ -83,8 +83,8 @@ class FileFinder {
   _findFiles(path, type, globs) {
     return new Promise(function(resolve, reject) {
       const files = [];
-
-      gs.create(globs, {cwd: path})
+      // console.log(path, globs);
+      gs(globs, {cwd: path})
         .on('data', (e) => files.push(new File(type, e.path)))
         .on('error', (err) => reject(err))
         .on('end', () => resolve(files));
