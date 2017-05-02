@@ -20,6 +20,7 @@
   },
   "scripts": {
     "test": "JASMINE_CONFIG_PATH=jasmine.json istanbul cover jasmine",
+    "postinstall": "npm rebuild",
     "coveralls": "cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "posttest": "eslint src/"
   }
