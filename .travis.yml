@@ -22,6 +22,7 @@ before_deploy:
   - yarn install --production
 deploy:
   provider: lambda
+  skip_cleanup: true
   function_name: ecd
   description: Deploy AWS ECS Services
   module_name: index
