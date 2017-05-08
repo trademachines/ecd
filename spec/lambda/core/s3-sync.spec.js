@@ -1,5 +1,3 @@
-'use strict';
-
 const S3Sync     = require('./../../../src/lambda/core/s3-sync').S3Sync;
 const os         = require('os');
 const fs         = require('fs-promise');

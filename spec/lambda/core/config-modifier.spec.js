@@ -1,15 +1,12 @@
-'use strict';
-
-const EnvironmentFromHashConfigModifier = require(
-  './../../../src/lambda/core/config-modifier').EnvironmentFromHashConfigModifier;
+const configModifierPath = './../../../src/lambda/core/config-modifier';
+const configModifier     = require(configModifierPath);
 
 describe('Config modifications', () => {
-
   describe('modify environment vars', () => {
     let envFromHashModifier;
 
     beforeEach(() => {
-      envFromHashModifier = new EnvironmentFromHashConfigModifier();
+      envFromHashModifier = new configModifier.EnvironmentFromHashConfigModifier();
     });
 
     it('modifies environments defined as plain object', (done) => {
@@ -42,14 +39,82 @@ describe('Config modifications', () => {
       const config = {
         containerDefinitions: [
           {
-            environment: [1,2,3]
+            environment: [1, 2, 3]
           }
         ]
       };
 
       envFromHashModifier.modify(config).then(
         (conf) => {
-          expect(conf.containerDefinitions[0].environment).toEqual([1,2,3]);
+          expect(conf.containerDefinitions[0].environment).toEqual([1, 2, 3]);
+          done();
+        },
+        done.fail
+      );
+    });
+  });
+
+  describe('modify port mappings', () => {
+    let portsFromStringModifier;
+
+    beforeEach(() => {
+      portsFromStringModifier = new configModifier.PortMappingFromStringConfigModifier();
+    });
+
+    it('modifies portMappings defined as strings', (done) => {
+      const config = {
+        containerDefinitions: [
+          {
+            portMappings: ["80"]
+          }
+        ]
+      };
+
+      portsFromStringModifier.modify(config).then(
+        (conf) => {
+          expect(conf.containerDefinitions[0].portMappings).toEqual([
+            {containerPort: 80, hostPort: 0},
+          ]);
+          done();
+        },
+        done.fail
+      );
+    });
+
+    it('modifies portMappings defined as single number', (done) => {
+      const config = {
+        containerDefinitions: [
+          {
+            portMappings: [80]
+          }
+        ]
+      };
+
+      portsFromStringModifier.modify(config).then(
+        (conf) => {
+          expect(conf.containerDefinitions[0].portMappings).toEqual([
+            {containerPort: 80, hostPort: 0},
+          ]);
+          done();
+        },
+        done.fail
+      );
+    });
+
+    it('modifies portMappings defined as string with fixed host port', (done) => {
+      const config = {
+        containerDefinitions: [
+          {
+            portMappings: ["8080:80"]
+          }
+        ]
+      };
+
+      portsFromStringModifier.modify(config).then(
+        (conf) => {
+          expect(conf.containerDefinitions[0].portMappings).toEqual([
+            {containerPort: 80, hostPort: 8080},
+          ]);
           done();
         },
         done.fail

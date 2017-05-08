@@ -1,5 +1,3 @@
-'use strict';
-
 const FileFinder = require('./../../../src/lambda/core/finder').FileFinder;
 const File       = require('./../../../src/lambda/core/finder').File;
 

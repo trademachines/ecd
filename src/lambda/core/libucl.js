@@ -1,5 +1,3 @@
-'use strict';
-
 const ffi  = require('ffi');
 const file = __dirname + '/resources/libucl.so';
 const _    = require('lodash');

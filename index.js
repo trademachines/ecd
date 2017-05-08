@@ -30,6 +30,7 @@ const deploymentService = new DeploymentService(
 const ecdService        = new EcdService(fileFinder, configBuilder, new Ajv(), deploymentService);
 
 configBuilder.addModifier(new modifier.EnvironmentFromHashConfigModifier());
+configBuilder.addModifier(new modifier.PortMappingFromStringConfigModifier());
 
 const server = require('./src/lambda/server');
 const api    = require('./src/lambda/api');

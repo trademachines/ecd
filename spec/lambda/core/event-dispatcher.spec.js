@@ -1,5 +1,3 @@
-'use strict';
-
 const EventDispatcher = require('./../../../src/lambda/core/event-dispatcher').EventDispatcher;
 
 describe('Event dispatching', () => {

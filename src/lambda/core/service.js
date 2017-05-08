@@ -1,5 +1,3 @@
-'use strict';
-
 const taskDefSchema    = require('./resources/task-definition.schema.json');
 const ApplicationError = require('./../server/error').ApplicationError;
 

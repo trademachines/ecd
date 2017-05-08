@@ -1,5 +1,3 @@
-'use strict';
-
 const _         = require('lodash');
 const program   = require('commander');
 const client    = require('./client');

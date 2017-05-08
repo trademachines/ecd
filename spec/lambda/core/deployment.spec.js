@@ -1,5 +1,3 @@
-'use strict';
-
 const _                 = require('lodash');
 const DeploymentService = require('./../../../src/lambda/core/deployment').DeploymentService;
 

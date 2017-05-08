@@ -1,5 +1,3 @@
-'use strict';
-
 const EcdService = require('./../../../src/lambda/core/service').EcdService;
 
 describe('ECD Service', () => {

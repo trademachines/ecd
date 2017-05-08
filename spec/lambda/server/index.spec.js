@@ -1,5 +1,3 @@
-'use strict';
-
 const server           = require('./../../../src/lambda/server');
 const ApplicationError = require('./../../../src/lambda/server/error').ApplicationError;
 

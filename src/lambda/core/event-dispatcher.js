@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports.EventDispatcher = class EventDispatcher {
   /**
    * @param {AWS.CloudWatchEvents} cloudwatchEvents

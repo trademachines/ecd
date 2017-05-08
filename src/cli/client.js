@@ -1,5 +1,3 @@
-'use strict';
-
 const AWS  = require('aws-sdk');
 const fs   = require('fs-promise');
 const path = require('path');

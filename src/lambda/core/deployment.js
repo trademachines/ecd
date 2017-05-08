@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports.DeploymentService = class {
   /**
    * @param {AWS.ECS} ecs

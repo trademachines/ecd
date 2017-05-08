@@ -1,5 +1,3 @@
-'use strict';
-
 const LibuclParser = require('./../../../src/lambda/core/libucl').LibuclParser;
 
 describe('Licucl parser', () => {

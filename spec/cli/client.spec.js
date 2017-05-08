@@ -1,5 +1,3 @@
-'use strict';
-
 const AWS       = require('aws-sdk');
 const ApiClient = require('./../../src/cli/client').ApiClient;
 

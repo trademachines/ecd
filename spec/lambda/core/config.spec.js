@@ -1,5 +1,3 @@
-'use strict';
-
 const ConfigBuilder = require('./../../../src/lambda/core/config').ConfigBuilder;
 const fixtureDir    = __dirname + '/_fixtures/config';
 
