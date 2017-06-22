@@ -39,14 +39,14 @@ const list = (val, memo) => {
 const regionDescription     = 'Sets the AWS region where the function resides. Defaults to \'eu-west-1\'.';
 const functionDescription   = 'Set AWS Lambda function name that will be called. Defaults to \'ecd\'.';
 const configFileDescription = 'Specify a filename that will be used to compute the ECS Task Definition.';
-const varFileDescription    = 'Specify a filename where additional variables are stored. It should only contain lines with KEY=VALUE.';
+const varFileDescription    = 'Specify a filename where additional variables are stored. It should only contain lines with KEY=VALUE. You can add multiple files by adding the option multiple times.';
 /* eslint-enable max-len */
 
 program
   .option('--region <value>', regionDescription, 'eu-west-1')
   .option('--function <value>', functionDescription, 'ecd')
   .option('--config-file <value>', configFileDescription)
-  .option('--var-file <value>', varFileDescription)
+  .option('--var-file <value>', varFileDescription, list, [])
   .option('--var <value>', 'Add additional variables in the KEY=VALUE format.', list, []);
 
 program

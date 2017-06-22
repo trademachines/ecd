@@ -68,7 +68,7 @@ describe('Api Client', () => {
     spyOn(lambda, 'invoke').and.callThrough();
     client.configure('my-region', 'my-fn');
 
-    client.call('my-method', 'cluster', 'service', 'service.conf', 'service.properties').then(
+    client.call('my-method', 'cluster', 'service', 'service.conf', ['service.properties']).then(
       () => {
         expect(lambda.invoke).toHaveBeenCalled();
 
@@ -88,8 +88,8 @@ describe('Api Client', () => {
     client.configure('my-region', 'my-fn');
 
     Promise.all([
-      client.call('my-method', 'cluster', 'service', 'service.conf', 'service.properties'),
-      client.call('my-method', 'cluster', 'service', 'service.conf', 'service.properties')
+      client.call('my-method', 'cluster', 'service', 'service.conf', ['service.properties']),
+      client.call('my-method', 'cluster', 'service', 'service.conf', ['service.properties'])
     ]).then(
       () => {
         expect(lambda.invoke).toHaveBeenCalledTimes(2);
@@ -110,7 +110,7 @@ describe('Api Client', () => {
     client.configure('my-region', 'my-fn');
     lambdaPayload = {foo: 'bar'};
 
-    client.call('my-method', 'cluster', 'service', 'service.conf', 'service.properties')
+    client.call('my-method', 'cluster', 'service', 'service.conf', ['service.properties'])
       .then(
         (response) => {
           expect(response).toEqual(lambdaPayload);
@@ -118,7 +118,5 @@ describe('Api Client', () => {
         },
         done.fail
       );
-
   });
-
 });
