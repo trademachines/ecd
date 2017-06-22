@@ -34,7 +34,7 @@ module.exports.ApiClient = class ApiClient {
     const lambda     = this._getLambdaClient();
     const readFiles  = [
       this._readFile(configContent),
-      ...(varContent || []).map((f) => this._readFile(f))
+      Promise.all((varContent || []).map((f) => this._readFile(f)))
     ];
     const callLambda = (contents) => {
       const params = [
@@ -42,7 +42,7 @@ module.exports.ApiClient = class ApiClient {
           cluster: cluster,
           service: service,
           configContent: contents[0],
-          varContent: contents[1],
+          varContent: contents[1].join(`\n`),
           vars: vars
         }
       ].concat(contents);

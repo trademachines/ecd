@@ -82,6 +82,25 @@ describe('Api Client', () => {
     );
   });
 
+  it('puts contents of multiple files into params', (done) => {
+    spyOn(AWS, 'Lambda').and.returnValue(lambda);
+    spyOn(lambda, 'invoke').and.callThrough();
+    client.configure('my-region', 'my-fn');
+
+    client.call('my-method', 'cluster', 'service', 'service.conf', ['service.properties', 'service-more.properties']).then(
+      () => {
+        expect(lambda.invoke).toHaveBeenCalled();
+
+        const payload = lambda.invoke.calls.argsFor(0)[0].Payload;
+        expect(payload).toContain('"configContent":"service content"');
+        expect(payload).toContain('"varContent":"properties content\\nmore properties content"');
+
+        done();
+      },
+      done.fail
+    );
+  });
+
   it('uses integer for json-rpc id', (done) => {
     spyOn(AWS, 'Lambda').and.returnValue(lambda);
     spyOn(lambda, 'invoke').and.callThrough();
