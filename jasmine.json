@@ -1,10 +1,11 @@
 {
   "spec_dir": ".",
   "spec_files": [
+    "spec/**/*[sS]pec.ts",
     "spec/**/*[sS]pec.js"
   ],
   "helpers": [
-    "jasmine-reporter.js"
+    "jasmine-bootstrap.js"
   ],
   "stopSpecOnExpectationFailure": false,
   "random": false

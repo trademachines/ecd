@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["es2015", "es2016"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "importHelpers": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "alwaysStrict": false,
+    "sourceMap": true,
+    "declaration": false,
+    "rootDir": ".",
+    "outDir": "build",
+    "removeComments": false
+  },
+  "typeRoots": [
+    "./node_modules/@types",
+    "./node_modules"
+  ],
+  "types": [
+    "node", "jasmine", "reflect-metadata"
+  ],
+  "include": [
+    "src/**/*",
+    "spec/**/*",
+    "features/**/*"
+  ],
+  "exclude": [ "node_modules", "dist"]
+}

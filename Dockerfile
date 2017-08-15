@@ -1,11 +1,11 @@
 FROM node:6.10-alpine
 
 COPY package.json yarn.lock /ecd/
-COPY src/cli /ecd/src/cli
+COPY build/src/cli /ecd/src/cli
+COPY build/node_modules /ecd/node_modules
 
 RUN cd /ecd \
     && yarn remove ffi \
-    && yarn install --production \
     && npm remove -g yarn \
     && rm -rf ~/.cache/yarn ~/.npm /usr/local/share /usr/lib/node_modules
 
