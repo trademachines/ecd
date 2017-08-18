@@ -22,6 +22,7 @@ before_install:
 
 script:
   - npm run test:ci
+  - npm run dist
 
 after_success: |
   set -e
@@ -31,9 +32,6 @@ after_success: |
     pip install --user awscli
     docker login -e="${DOCKER_EMAIL}" -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
   fi
-
-before_deploy:
-  - npm run dist
 
 deploy:
   - provider: lambda
