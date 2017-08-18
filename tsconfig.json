@@ -28,6 +28,7 @@
     "node", "jasmine", "reflect-metadata"
   ],
   "include": [
+    "index.ts",
     "src/**/*",
     "spec/**/*",
     "features/**/*"
