@@ -42,7 +42,7 @@
     "test:unit": "JASMINE_CONFIG_PATH=jasmine.json istanbul test jasmine",
     "test:acceptance": "node -r 'reflect-metadata' ./node_modules/.bin/cucumberjs --compiler ts:ts-node/register",
     "test": "npm run test:unit && npm run test:acceptance",
-    "test:ci": "npm run clean && npm_config_coverage=1 npm test",
+    "test:ci": "npm run clean && npm_config_coverage=1 npm test && npm run coveralls",
     "test:watch": "nodemon --config nodemon.test.json",
     "dist": "npm run build && yarn install --production --modules-folder ./build/node_modules",
     "postinstall": "npm rebuild",
