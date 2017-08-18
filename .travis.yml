@@ -26,9 +26,7 @@ script:
 
 after_success: |
   set -e
-
   if [ "$TRAVIS_BRANCH" == "master" ]; then
-#    chmod -R 755 node_modules/
     pip install --user awscli
     docker login -e="${DOCKER_EMAIL}" -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}"
   fi
