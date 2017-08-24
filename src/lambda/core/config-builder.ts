@@ -1,3 +1,4 @@
+import { Context } from 'aws-lambda';
 import { KMS } from 'aws-sdk';
 import * as fs from 'fs';
 import { Injectable } from 'injection-js';
@@ -5,7 +6,7 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import { ConfigModifier } from './config-modifiers';
 import { File } from "./finder";
-import { LibuclFactory } from './libucl';
+import { LibuclFactory, LibuclParser } from './libucl';
 
 const explode = function (str: string, separator: string, limit: number) {
   let arr = str.split(separator);
@@ -30,12 +31,13 @@ export class ConfigBuilder {
   /**
    * @param {File[]} files
    * @param {object} context
+   * @param {Context} awsContext
    * @return {*}
    */
-  build(files: File[], context) {
+  build(files: File[], context, awsContext: Context) {
     const parser = this.libuclFactory.create();
 
-    return this.assemble(parser, files, context)
+    return this.assemble(parser, files, context, awsContext)
       .then((config) => this.decryptSecureValues(config))
       .then((config) => this.modify(config));
   }
@@ -51,15 +53,19 @@ export class ConfigBuilder {
    * @param {LibuclParser} parser
    * @param {File[]} files
    * @param {object} context
+   * @param {Context} awsContext
    * @return {*}
    * @private
    */
-  private assemble(parser, files, context) {
+  private assemble(parser: LibuclParser, files: File[], context, awsContext: Context) {
     try {
+      let [, , , region, accountId] = awsContext.invokedFunctionArn.split(':');
+
       // register context vars
       parser.addVariable('CLUSTER', context.cluster);
       parser.addVariable('SERVICE', context.service);
-      parser.addVariable('AWS_REGION', process.env.AWS_REGION);
+      parser.addVariable('AWS_REGION', region);
+      parser.addVariable('AWS_ACCOUNT_ID', accountId);
 
       this.addMultipleVars(parser, context.varContent);
 

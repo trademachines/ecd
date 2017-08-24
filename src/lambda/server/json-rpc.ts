@@ -14,7 +14,7 @@ export class JsonRpcServer {
   constructor() {
   }
 
-  handle(event: JsonRpcEvent, _context: Context, cb: Callback) {
+  handle(event: JsonRpcEvent, context: Context, cb: Callback) {
     try {
       if (!JsonRpcServer.isValidEvent(event)) {
         return cb(new Error('Payload is not in a valid RPC format.'));
@@ -26,6 +26,8 @@ export class JsonRpcServer {
       }
 
       const route = this.routes[method];
+      event.params.push(context);
+
       route.apply(route, event.params)
         .then((res) => cb(null, { result: res || null, id: event.id }))
         .catch((err) => {

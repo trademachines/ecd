@@ -8,11 +8,15 @@ describe('Config building', () => {
   let kms;
   let kmsDecryptedValue;
   let configBuilder;
+  let awsContext;
   const f = (f) => {
     return `${fixtureDir}/${f}`;
   };
 
   beforeEach(() => {
+    awsContext    = {
+      invokedFunctionArn: 'arn:aws:lambda:tm-west-1:123456789012:function:ecd'
+    };
     kms           = {
       decrypt: () => {
         return {
@@ -38,16 +42,13 @@ describe('Config building', () => {
     };
     configBuilder = new ConfigBuilder(kms, libuclFactory);
   });
-  afterEach(() => {
-    delete process.env.AWS_REGION;
-  });
 
   describe('variables file handling', () => {
     it('adds var files', (done) => {
       spyOn(libuclParser, 'addVariable');
       const files = [{ type: 'variable', path: f('SOMEVAR.var') }];
 
-      configBuilder.build(files, { cluster: 'my-cluster', service: 'my-service' })
+      configBuilder.build(files, { cluster: 'my-cluster', service: 'my-service' }, awsContext)
         .then(() => {
           expect(libuclParser.addVariable).toHaveBeenCalledWith('SOMEVAR', 'some-value');
         })
@@ -59,7 +60,7 @@ describe('Config building', () => {
       spyOn(libuclParser, 'addVariable');
       const files = [{ type: 'variable', path: f('vars.properties') }];
 
-      configBuilder.build(files, { cluster: 'my-cluster', service: 'my-service' })
+      configBuilder.build(files, { cluster: 'my-cluster', service: 'my-service' }, awsContext)
         .then(() => {
           expect(libuclParser.addVariable).toHaveBeenCalledWith('FIRST_VAR', 'first-value');
           expect(libuclParser.addVariable).toHaveBeenCalledWith('SECOND_VAR', 'second-value');
@@ -72,7 +73,7 @@ describe('Config building', () => {
       spyOn(libuclParser, 'addVariable');
       const files = [{ type: 'variable', path: f('vars-with-empty-lines.properties') }];
 
-      configBuilder.build(files, { cluster: 'my-cluster', service: 'my-service' })
+      configBuilder.build(files, { cluster: 'my-cluster', service: 'my-service' }, awsContext)
         .then(() => {
           expect(libuclParser.addVariable).not.toHaveBeenCalledWith('', '');
           expect(libuclParser.addVariable).not.toHaveBeenCalledWith(jasmine.anything(), '');
@@ -86,7 +87,7 @@ describe('Config building', () => {
       spyOn(libuclParser, 'addVariable');
       const files = [{ type: 'variable', path: f('vars-with-equal-sign.properties') }];
 
-      configBuilder.build(files, { cluster: 'my-cluster', service: 'my-service' })
+      configBuilder.build(files, { cluster: 'my-cluster', service: 'my-service' }, awsContext)
         .then(() => {
           expect(libuclParser.addVariable).toHaveBeenCalledWith('FIRST_VAR', 'first=value');
         })
@@ -97,7 +98,7 @@ describe('Config building', () => {
     it('adds cluster+service as vars', (done) => {
       spyOn(libuclParser, 'addVariable');
 
-      configBuilder.build([], { cluster: 'my-cluster', service: 'my-service' })
+      configBuilder.build([], { cluster: 'my-cluster', service: 'my-service' }, awsContext)
         .then(() => {
           expect(libuclParser.addVariable).toHaveBeenCalledWith('CLUSTER', 'my-cluster');
           expect(libuclParser.addVariable).toHaveBeenCalledWith('SERVICE', 'my-service');
@@ -106,14 +107,13 @@ describe('Config building', () => {
         .catch(done.fail);
     });
 
-    it('adds process environment variables as vars', (done) => {
+    it('adds context information from runtime as vars', (done) => {
       spyOn(libuclParser, 'addVariable');
 
-      process.env.AWS_REGION = 'tm-west-1';
-
-      configBuilder.build([], { service: 'my-service' })
+      configBuilder.build([], { service: 'my-service' }, awsContext)
         .then(() => {
           expect(libuclParser.addVariable).toHaveBeenCalledWith('AWS_REGION', 'tm-west-1');
+          expect(libuclParser.addVariable).toHaveBeenCalledWith('AWS_ACCOUNT_ID', '123456789012');
         })
         .then(done)
         .catch(done.fail);
@@ -122,7 +122,7 @@ describe('Config building', () => {
     it('adds vars from context', (done) => {
       spyOn(libuclParser, 'addVariable');
 
-      configBuilder.build([], { service: 'my-service', varContent: "SOME=THING\nFOO=BAR" })
+      configBuilder.build([], { service: 'my-service', varContent: "SOME=THING\nFOO=BAR" }, awsContext)
         .then(() => {
           expect(libuclParser.addVariable).toHaveBeenCalledWith('SOME', 'THING');
           expect(libuclParser.addVariable).toHaveBeenCalledWith('FOO', 'BAR');
@@ -134,7 +134,7 @@ describe('Config building', () => {
     it('adds explicit vars from context', (done) => {
       spyOn(libuclParser, 'addVariable');
 
-      configBuilder.build([], { service: 'my-service', vars: ["SOME=THING", "FOO=BAR"] })
+      configBuilder.build([], { service: 'my-service', vars: ["SOME=THING", "FOO=BAR"] }, awsContext)
         .then(() => {
           expect(libuclParser.addVariable).toHaveBeenCalledWith('SOME', 'THING');
           expect(libuclParser.addVariable).toHaveBeenCalledWith('FOO', 'BAR');
@@ -152,7 +152,7 @@ describe('Config building', () => {
         { type: 'config', path: f('non-empty.conf') },
       ];
 
-      configBuilder.build(files, { cluster: 'my-cluster', service: 'my-service' })
+      configBuilder.build(files, { cluster: 'my-cluster', service: 'my-service' }, awsContext)
         .then(() => {
           expect(libuclParser.addString).toHaveBeenCalledTimes(1);
           expect(libuclParser.addString).toHaveBeenCalledWith('containerDefinitions = []');
@@ -181,7 +181,7 @@ describe('Config building', () => {
       };
       spyOn(libuclParser, 'asJson').and.returnValue(json);
 
-      configBuilder.build([], { cluster: 'my-cluster', service: 'my-service' })
+      configBuilder.build([], { cluster: 'my-cluster', service: 'my-service' }, awsContext)
         .then((config) => {
           expect(config).toEqual(jasmine.objectContaining({
             'scalar': kmsDecryptedValue,
@@ -216,7 +216,7 @@ describe('Config building', () => {
 
       configBuilder.addModifier(new Modifer(1));
       configBuilder.addModifier(new Modifer(2));
-      configBuilder.build([], { cluster: 'my-cluster', service: 'my-service' })
+      configBuilder.build([], { cluster: 'my-cluster', service: 'my-service' }, awsContext)
         .then((config) => {
           expect(config.containerDefinitions).toEqual([{ modifier: 1 }, { modifier: 2 }]);
         })

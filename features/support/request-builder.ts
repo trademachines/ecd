@@ -28,7 +28,10 @@ export class RequestBuilder implements Injector {
   }
 
   run(command: string, cluster: string, service: string) {
-    return this.handler(this.getJsonRpcEvent(command, cluster, service), null as Context);
+    return this.handler(
+      this.getJsonRpcEvent(command, cluster, service),
+      { invokedFunctionArn: 'arn:aws:lambda:tm-west-1:123456789012:function:ecd' } as Context
+    );
   }
 
   get <T>(token: Type<T> | InjectionToken<T>, notFoundValue?: T): T;

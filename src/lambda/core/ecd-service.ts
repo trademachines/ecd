@@ -1,4 +1,5 @@
 import { Ajv } from 'ajv';
+import { Context } from 'aws-lambda';
 import { Inject, Injectable } from 'injection-js';
 import * as _ from 'lodash';
 import { ApplicationError } from '../server/errors';
@@ -33,10 +34,11 @@ export class EcdService {
 
   /**
    * @param {object} context
+   * @param {Context} awsContext
    * @return {Promise}
    */
-  deploy(context) {
-    return this.prepare(context)
+  deploy(context, awsContext: Context) {
+    return this.prepare(context, awsContext)
       .then(config => this.deployment.deploy(config, context.cluster, context.service))
       .catch(err => {
         if (!(err instanceof ApplicationError)) {
@@ -49,40 +51,46 @@ export class EcdService {
 
   /**
    * @param {object} context
+   * @param {Context} awsContext
    * @return {Promise}
    */
-  validate(context) {
-    return this.prepare(context)
+  validate(context, awsContext: Context) {
+    return this.prepare(context, awsContext)
       .then(() => Promise.resolve());
   }
 
   /**
    * @param {object} context
+   * @param {Context} awsContext
    * @return {Promise}
    */
-  dump(context) {
-    return this.createConfig(context);
+  dump(context, awsContext: Context) {
+    return this.createConfig(context, awsContext);
   }
 
   /**
    * @param {object} context
+   * @param {Context} awsContext
+
    * @return {Promise}
    * @private
    */
-  private prepare(context) {
-    return this.createConfig(context)
+  private prepare(context, awsContext: Context) {
+    return this.createConfig(context, awsContext)
       .then((config) => this.validateSchema(config))
       .catch((err) => Promise.reject(new ConfigValidationError(_.isArray(err) ? err : [err])));
   }
 
   /**
    * @param {object} context
+   * @param {Context} awsContext
+   *
    * @return {Promise}
    */
-  private createConfig(context) {
+  private createConfig(context, awsContext: Context) {
     return this.assertContext(context)
       .then(() => this.finder.find(context.cluster, context.service))
-      .then((files) => this.configBuilder.build(files, context));
+      .then((files) => this.configBuilder.build(files, context, awsContext));
   }
 
   /**
