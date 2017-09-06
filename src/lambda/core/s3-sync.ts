@@ -1,8 +1,9 @@
 import { S3 } from 'aws-sdk';
 import { emptyDir } from 'fs-extra';
-import { Inject, Injectable } from 'injection-js';
+import { Injectable } from 'injection-js';
 import { PassThrough } from 'stream';
 import * as unzip from 'unzip';
+import { RunConfiguration } from './run-configuration';
 
 const filename = 'ecd.zip';
 
@@ -11,13 +12,12 @@ export class S3Sync {
   private etag: S3.ETag;
 
   constructor(private s3: S3,
-              @Inject('ecd.s3.bucket') private bucket: string,
-              @Inject('ecd.sync.dir') private path: string) {
+              private config: RunConfiguration) {
   }
 
   sync(): Promise<string> {
     const retrieve = this.s3.getObject({
-      Bucket: this.bucket,
+      Bucket: this.config.bucket,
       Key: filename,
       IfNoneMatch: this.etag
     }).promise();
@@ -30,7 +30,7 @@ export class S3Sync {
 
     return retrieve
       .then(this.getAndExtract.bind(this), handleS3Error)
-      .then(() => this.path);
+      .then(() => this.config.syncDir);
   }
 
   /**
@@ -42,7 +42,7 @@ export class S3Sync {
     const extract = () => {
       return new Promise((resolve, reject) => {
         const pass    = new PassThrough();
-        const extract = new unzip.Extract({ path: this.path });
+        const extract = new unzip.Extract({ path: this.config.syncDir });
         extract.on('close', resolve);
         extract.on('error', reject);
 
@@ -50,7 +50,7 @@ export class S3Sync {
       });
     };
 
-    return emptyDir(this.path)
+    return emptyDir(this.config.syncDir)
       .then(extract)
       .then(() => this.etag = obj.ETag);
   }

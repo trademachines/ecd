@@ -1,23 +1,16 @@
 import { CloudWatchEvents, ECS, KMS, S3 } from 'aws-sdk';
 import { Injector, ReflectiveInjector } from 'injection-js';
-import * as os from 'os';
 import { bootstrap as apiBootstrap, providers as apiProviders } from './api';
 import { bootstrap as coreBootstrap, providers as coreProviders } from './core';
+import { RunConfiguration } from './core/run-configuration';
 import { JsonRpcServer, providers as serverProviders } from './server';
 import Ajv = require('ajv');
 
 export const providers = ReflectiveInjector.resolve([
   {
-    provide: 'ecd.sync.dir',
-    useValue: os.tmpdir() + '/_sync/'
-  },
-  {
-    provide: 'ecd.s3.bucket',
-    useValue: process.env.BUCKET || 'tm-ecd-configs'
-  },
-  {
-    provide: 'aws.region',
-    useValue: process.env.AWS_REGION = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || 'eu-west-1'
+    provide: RunConfiguration,
+    deps: [],
+    useFactory: () => new RunConfiguration(process.env)
   },
   {
     provide: 'ajv',
@@ -26,18 +19,18 @@ export const providers = ReflectiveInjector.resolve([
   S3,
   {
     provide: KMS,
-    deps: ['aws.region'],
-    useFactory: (region: string) => new KMS({ region: region })
+    deps: [RunConfiguration],
+    useFactory: (c: RunConfiguration) => new KMS({ region: c.awsRegion })
   },
   {
     provide: ECS,
-    deps: ['aws.region'],
-    useFactory: (region: string) => new ECS({ region: region })
+    deps: [RunConfiguration],
+    useFactory: (c: RunConfiguration) => new ECS({ region: c.awsRegion })
   },
   {
     provide: CloudWatchEvents,
-    deps: ['aws.region'],
-    useFactory: (region: string) => new CloudWatchEvents({ region: region })
+    deps: [RunConfiguration],
+    useFactory: (c: RunConfiguration) => new CloudWatchEvents({ region: c.awsRegion })
   },
   ...apiProviders(),
   ...serverProviders(),

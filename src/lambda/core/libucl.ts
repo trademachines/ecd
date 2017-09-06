@@ -26,7 +26,7 @@ export class LibuclParser {
   }
 
   addVariable(key: string, value: string) {
-    const tempVarName = _.padStart(++this.varsCounter, 10, '0');
+    const tempVarName = _.padStart(String(++this.varsCounter), 10, '0');
     this.vars[key]    = tempVarName;
     bindings.ucl_parser_register_variable(this.parser, tempVarName, String(value));
     this.checkError();

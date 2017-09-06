@@ -1,5 +1,6 @@
 import * as fs from 'fs-extra';
 import * as os from 'os'
+import { RunConfiguration } from '../../../src/lambda/core/run-configuration';
 import { S3Sync } from '../../../src/lambda/core/s3-sync';
 
 const fixtureDir = os.tmpdir() + '/__fixtures-repo';
@@ -11,18 +12,14 @@ describe('S3 synchronisation', () => {
     Body: fs.readFileSync(__dirname + '/empty.zip', { encoding: 'utf8' }),
     ETag: null
   });
+  let runConfig: RunConfiguration;
 
   beforeEach(() => {
-    s3     = {
-      getObject: () => {
-        return {
-          promise: () => {
-            return s3Promise;
-          }
-        };
-      }
+    runConfig = new RunConfiguration({ BUCKET: 'crazy-bucket-name', syncDir: fixtureDir });
+    s3        = {
+      getObject: () => ({ promise: () => s3Promise })
     };
-    s3Sync = new S3Sync(s3, 'crazy-bucket-name', fixtureDir);
+    s3Sync    = new S3Sync(s3, runConfig);
     spyOn(fs, 'emptyDir').and.returnValue(Promise.resolve());
   });
 
