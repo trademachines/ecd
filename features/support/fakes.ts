@@ -30,6 +30,16 @@ export class FakeKMS {
 
 @Injectable()
 export class FakeECS extends FakeAWSService {
+  public services: ECS.Services = [];
+
+  deregisterTaskDefinition(params: ECS.DeregisterTaskDefinitionRequest) {
+    return this.call('deregisterTaskDefinition', Promise.resolve({
+      taskDefinition: {
+        taskDefinitionArn: 'arn:aws:ecs:eu-test-1:xxxxxxxxxxxx:task-definition/amazon-ecs-sample:1'
+      }
+    }), params);
+  }
+
   registerTaskDefinition(params: ECS.RegisterTaskDefinitionRequest) {
     return this.call('registerTaskDefinition', Promise.resolve({
       taskDefinition: {
@@ -38,7 +48,13 @@ export class FakeECS extends FakeAWSService {
     }), params);
   }
 
-  updateService(params: ECS.Types.UpdateServiceRequest) {
+  describeServices(params: ECS.DescribeServicesRequest) {
+    return this.call('describeServices', Promise.resolve({
+      services: this.services
+    }), params);
+  }
+
+  updateService(params: ECS.UpdateServiceRequest) {
     return this.call('updateService', Promise.resolve({}), params);
   }
 

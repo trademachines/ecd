@@ -1,6 +1,6 @@
 import { ECS } from 'aws-sdk';
-import { EventDispatcher } from './event-dispatcher';
 import { Injectable } from 'injection-js';
+import { EventDispatcher } from './event-dispatcher';
 
 @Injectable()
 export class DeploymentService {
@@ -16,30 +16,57 @@ export class DeploymentService {
   deploy(config: object, cluster: string, service: string) {
     let taskDefArn;
 
-    return this.registerNewTaskDef(config as ECS.RegisterTaskDefinitionRequest)
-      .then((taskDefArn) => this.updateService(taskDefArn, cluster, service).then(() => taskDefArn))
-      .then((taskDefArn) => this.dispatchSuccess(taskDefArn, cluster, service))
+    return this.getService(cluster, service)
+      .then(ecsService => this.registerNewTaskDef(config as any).then(r => [ecsService, r.taskDefinition]))
+      .then(([ecsService, taskDefinition]) => this.updateService(taskDefinition, cluster, service).then(() => [ecsService, taskDefinition]))
+      .then(([oldService, taskDefinition]) => this.deregisterOldTaskDef(oldService).then(() => taskDefinition))
+      .then(taskDefinition => this.dispatchSuccess(taskDefinition, cluster, service))
       .then(() => Promise.resolve({ taskDefinition: taskDefArn }));
   }
 
   private registerNewTaskDef(config: ECS.RegisterTaskDefinitionRequest) {
-    return this.ecs.registerTaskDefinition(config as ECS.RegisterTaskDefinitionRequest).promise()
-      .then((registerTaskDefRes) => registerTaskDefRes.taskDefinition.taskDefinitionArn);
+    return this.ecs.registerTaskDefinition(config as ECS.RegisterTaskDefinitionRequest).promise();
   }
 
-  private updateService(taskDefArn: string, cluster: string, service: string) {
+  private deregisterOldTaskDef(service: ECS.Service) {
+    return this.ecs.deregisterTaskDefinition({ taskDefinition: service.taskDefinition }).promise();
+  }
+
+  private getService(cluster: string, service: string) {
+    return this.ecs.describeServices({ cluster: cluster, services: [service] }).promise()
+      .then((res) => {
+        let msg          = () => `Service '${service}' does not exist on cluster '${cluster}'`;
+        let hasFailure   = res.failures && res.failures.length > 0;
+        let hasNoService = res.services && res.services.length === 0;
+
+        if (hasFailure || hasNoService) {
+          return Promise.reject(msg());
+        }
+
+        let ecsService = res.services.find(s => s.serviceName === service);
+
+        if (!ecsService) {
+          return Promise.reject(msg());
+        }
+
+        return Promise.resolve(ecsService);
+      });
+  }
+
+  private updateService(taskDef: ECS.TaskDefinition, cluster: string, service: string) {
     return this.ecs.updateService({
       cluster: cluster,
       service: service,
-      taskDefinition: taskDefArn
+      taskDefinition: taskDef.taskDefinitionArn
     }).promise();
   }
 
-  private dispatchSuccess(taskDefArn: string, cluster: string, service: string) {
+  private dispatchSuccess(taskDef: ECS.TaskDefinition, cluster: string, service: string) {
     const detail = {
       cluster: cluster,
       service: service,
-      taskDefinition: taskDefArn
+      taskDefinition: `${taskDef.family}:${taskDef.revision}`,
+      taskDefinitionArn: taskDef.taskDefinitionArn
     };
 
     return this.eventDispatcher.succeeded(detail);

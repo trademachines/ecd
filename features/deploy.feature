@@ -18,6 +18,13 @@ Feature: Deploy a service
     }
     """
     And I have a variable FOO with value bar
+    And there is a service
+    """
+    {
+      "serviceName": "my-service",
+      "taskDefinition": "my-service:1"
+    }
+    """
     When I run deploy on my-service@cluster
     Then the response should be ok
     And a task definition should be registered with

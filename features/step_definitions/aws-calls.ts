@@ -4,7 +4,14 @@ import { defineSupportCode } from 'cucumber';
 import { FakeECS } from '../support/fakes';
 import { CustomWorld } from '../support/world';
 
-defineSupportCode(({ Then }) => {
+defineSupportCode(({ Given, Then }) => {
+  Given(/^there is a service$/, function (this: CustomWorld, service: string) {
+    let ecs = this.request.get(ECS) as any as FakeECS;
+    service = JSON.parse(service);
+
+    ecs.services.push(service as ECS.Service);
+  });
+
   Then(/^a task definition should be registered with$/, function (this: CustomWorld, taskDef: string) {
     let ecs          = this.request.get(ECS) as any as FakeECS;
     let registerCall = ecs.getCall('registerTaskDefinition');
