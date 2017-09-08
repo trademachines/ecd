@@ -37,12 +37,12 @@ export class ConfigBuilder {
     const parser = this.libuclFactory.create();
 
     return this.assemble(parser, files, context, awsContext)
-      .then((config) => this.modify(config));
+      .then(config => this.modify(config));
   }
 
   private modify(config) {
     return this.modifiers.reduce(
-      (p, m) => p.then((c) => m.modify(c)),
+      (p, m) => p.then(c => m.modify(c)),
       Promise.resolve(config)
     );
   }
@@ -108,12 +108,7 @@ export class ConfigBuilder {
     }
   }
 
-  /**
-   * @param {LibuclParser} parser
-   * @param {string} file
-   * @private
-   */
-  private addConfig(parser, file) {
+  private addConfig(parser: LibuclParser, file: string) {
     const content = fs.readFileSync(file, { encoding: 'utf8' }).trim();
 
     if (content || '' !== content) {
@@ -121,16 +116,13 @@ export class ConfigBuilder {
     }
   }
 
-  /**
-   * @param {LibuclParser} parser
-   * @param {string} file
-   * @private
-   */
-  private addVariable(parser, file) {
+  private addVariable(parser: LibuclParser, file: string) {
     switch (path.extname(file)) {
       case '.var':
-        parser.addVariable(path.basename(file, '.var'),
-          fs.readFileSync(file, { encoding: 'utf8' }).trim());
+        parser.addVariable(
+          path.basename(file, '.var'),
+          fs.readFileSync(file, { encoding: 'utf8' }).trim()
+        );
         break;
       case '.properties':
         const content = fs.readFileSync(file, { encoding: 'utf8' });
@@ -141,12 +133,7 @@ export class ConfigBuilder {
     }
   }
 
-  /**
-   * @param {LibuclParser} parser
-   * @param {string} string
-   * @private
-   */
-  private addMultipleVars(parser, string) {
+  private addMultipleVars(parser: LibuclParser, string: string) {
     _.chain(string).split('\n')
       .map((l) => l.trim())
       .filter((l) => '' !== l)
