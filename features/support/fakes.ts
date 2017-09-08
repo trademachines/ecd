@@ -1,4 +1,4 @@
-import { CloudWatchEvents, ECS } from 'aws-sdk';
+import { CloudWatchEvents, ECS, KMS } from 'aws-sdk';
 import { Injectable } from 'injection-js';
 
 @Injectable()
@@ -25,7 +25,12 @@ class FakeAWSService {
 }
 
 @Injectable()
-export class FakeKMS {
+export class FakeKMS extends FakeAWSService {
+  decrypt(params: KMS.DecryptRequest) {
+    return this.call('decrypt', Promise.resolve({
+      Plaintext: params.CiphertextBlob
+    }), params);
+  }
 }
 
 @Injectable()

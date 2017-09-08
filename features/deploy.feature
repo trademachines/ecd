@@ -11,13 +11,17 @@ Feature: Deploy a service
         {
           name: "foobar"
           environment {
-            foo = ${FOO}
+            foo: ${FOO}
+            bar {
+              secure = ${BAR}
+            }
           }
         }
       ]
     }
     """
     And I have a variable FOO with value bar
+    And I have an encrypted variable BAR with value baz
     And there is a service
     """
     {
@@ -26,6 +30,7 @@ Feature: Deploy a service
     }
     """
     When I run deploy on my-service@cluster
+    Then dump response
     Then the response should be ok
     And a task definition should be registered with
     """
@@ -37,6 +42,10 @@ Feature: Deploy a service
             {
               "name": "foo",
               "value": "bar"
+            },
+            {
+              "name": "bar",
+              "value": "baz"
             }
           ]
         }

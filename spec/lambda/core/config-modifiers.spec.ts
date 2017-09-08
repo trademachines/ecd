@@ -1,5 +1,5 @@
 import {
-  EnvironmentFromHashConfigModifier, PortMappingFromStringConfigModifier
+  DecryptSecureValuesConfigModifier, EnvironmentFromHashConfigModifier, PortMappingFromStringConfigModifier
 } from '../../../src/lambda/core/config-modifiers';
 
 describe('Config modifications', () => {
@@ -112,6 +112,52 @@ describe('Config modifications', () => {
           expect(conf.containerDefinitions[0].portMappings).toEqual([
             { containerPort: 80, hostPort: 8080 },
           ]);
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+  });
+
+  describe('decrypting secure values', () => {
+    let decryptSecureValuesModifier;
+    let kms;
+    let kmsDecryptedValue;
+
+    beforeEach(() => {
+      kms                         = {
+        decrypt: () => ({ promise: () => Promise.resolve({ Plaintext: new Buffer(kmsDecryptedValue) }) })
+      };
+      decryptSecureValuesModifier = new DecryptSecureValuesConfigModifier(kms);
+    });
+
+    it('decrypts plain objects with one single key named \'secure\'', (done) => {
+      kmsDecryptedValue    = 'kms-decrypted';
+      const encryptedValue = { secure: 'encrypted' };
+      const json           = {
+        'scalar': encryptedValue,
+        'array': ['one', 'two', encryptedValue],
+        'object': {
+          'scalar': encryptedValue,
+          'array': ['three', encryptedValue],
+          'nested': {
+            'scalar': encryptedValue
+          }
+        }
+      };
+
+      decryptSecureValuesModifier.modify(json)
+        .then(config => {
+          expect(config).toEqual(jasmine.objectContaining({
+            'scalar': kmsDecryptedValue,
+            'array': ['one', 'two', kmsDecryptedValue],
+            'object': {
+              'scalar': kmsDecryptedValue,
+              'array': ['three', kmsDecryptedValue],
+              'nested': {
+                'scalar': kmsDecryptedValue
+              }
+            }
+          }));
         })
         .then(done)
         .catch(done.fail);

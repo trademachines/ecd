@@ -12,6 +12,10 @@ defineSupportCode(({ Given, When }) => {
     this.request.withVar(key, value);
   });
 
+  Given(/^I have an encrypted variable (.+) with value (.+)/, function (this: CustomWorld, key: string, value: string) {
+    this.request.withVar(key, Buffer.from(value).toString('base64'));
+  });
+
   When(/^I run (.+) on (.+)@(.+)$/, function (this: CustomWorld, command: string, service: string, cluster: string) {
     if (!COMMANDS.includes(command)) {
       throw new Error(`Can't handle ${command}`);

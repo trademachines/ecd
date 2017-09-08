@@ -5,8 +5,6 @@ const fixtureDir = __dirname + '/_fixtures/config';
 describe('Config building', () => {
   let libuclParser;
   let libuclFactory;
-  let kms;
-  let kmsDecryptedValue;
   let configBuilder;
   let awsContext;
   const f = (f) => {
@@ -16,15 +14,6 @@ describe('Config building', () => {
   beforeEach(() => {
     awsContext    = {
       invokedFunctionArn: 'arn:aws:lambda:tm-west-1:123456789012:function:ecd'
-    };
-    kms           = {
-      decrypt: () => {
-        return {
-          promise: () => {
-            return Promise.resolve({ Plaintext: new Buffer(kmsDecryptedValue) });
-          }
-        }
-      }
     };
     libuclParser  = {
       addVariable: () => {
@@ -40,7 +29,7 @@ describe('Config building', () => {
         return libuclParser;
       }
     };
-    configBuilder = new ConfigBuilder(kms, libuclFactory);
+    configBuilder = new ConfigBuilder(libuclFactory);
   });
 
   describe('variables file handling', () => {
@@ -156,44 +145,6 @@ describe('Config building', () => {
         .then(() => {
           expect(libuclParser.addString).toHaveBeenCalledTimes(1);
           expect(libuclParser.addString).toHaveBeenCalledWith('containerDefinitions = []');
-        })
-        .then(done)
-        .catch(done.fail);
-    });
-  });
-
-  describe('decrypting secure values', () => {
-    it('decrypts plain objects with one single key named \'secure\'', (done) => {
-      kmsDecryptedValue    = 'kms-decrypted';
-      const encryptedValue = { secure: 'encrypted' };
-      const json           = {
-        'my-service': {
-          'scalar': encryptedValue,
-          'array': ['one', 'two', encryptedValue],
-          'object': {
-            'scalar': encryptedValue,
-            'array': ['three', encryptedValue],
-            'nested': {
-              'scalar': encryptedValue
-            }
-          }
-        }
-      };
-      spyOn(libuclParser, 'asJson').and.returnValue(json);
-
-      configBuilder.build([], { cluster: 'my-cluster', service: 'my-service' }, awsContext)
-        .then((config) => {
-          expect(config).toEqual(jasmine.objectContaining({
-            'scalar': kmsDecryptedValue,
-            'array': ['one', 'two', kmsDecryptedValue],
-            'object': {
-              'scalar': kmsDecryptedValue,
-              'array': ['three', kmsDecryptedValue],
-              'nested': {
-                'scalar': kmsDecryptedValue
-              }
-            }
-          }));
         })
         .then(done)
         .catch(done.fail);

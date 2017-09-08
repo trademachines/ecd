@@ -1,5 +1,4 @@
 import { Context } from 'aws-lambda';
-import { KMS } from 'aws-sdk';
 import * as fs from 'fs';
 import { Injectable } from 'injection-js';
 import * as _ from 'lodash';
@@ -21,7 +20,7 @@ const explode = function (str: string, separator: string, limit: number) {
 export class ConfigBuilder {
   private modifiers: ConfigModifier[] = [];
 
-  constructor(private kms: KMS, private libuclFactory: LibuclFactory) {
+  constructor(private libuclFactory: LibuclFactory) {
   }
 
   addModifier(modifier: ConfigModifier) {
@@ -38,7 +37,6 @@ export class ConfigBuilder {
     const parser = this.libuclFactory.create();
 
     return this.assemble(parser, files, context, awsContext)
-      .then((config) => this.decryptSecureValues(config))
       .then((config) => this.modify(config));
   }
 
@@ -154,49 +152,5 @@ export class ConfigBuilder {
       .filter((l) => '' !== l)
       .map((x) => explode(x, '=', 2)).fromPairs()
       .each((v, k) => parser.addVariable(k.trim(), v.trim())).value();
-  }
-
-  /**
-   * @param {*} obj
-   * @return {string}
-   * @private
-   */
-  private getSecureValue(obj) {
-    const keys = Object.keys(obj);
-    if (1 === keys.length && 'secure' === keys[0] && _.isString(obj.secure)) {
-      return obj.secure;
-    }
-  }
-
-  /**
-   * @param {object} config
-   * @return {Promise}
-   * @private
-   */
-  private decryptSecureValues(config) {
-    // TODO put into config modifier
-    switch (true) {
-      case _.isArray(config):
-        return Promise.all(config.map((x) => this.decryptSecureValues(x)));
-      case _.isPlainObject(config):
-        let securedValue;
-
-        if (securedValue = this.getSecureValue(config)) {
-          const params = { CiphertextBlob: new Buffer(securedValue, 'base64') };
-
-          return this.kms.decrypt(params).promise().then((k: KMS.DecryptResponse) => {
-            return k.Plaintext.toString();
-          });
-        } else {
-          const keys   = _.keys(config);
-          const values = _.values(config);
-
-          return Promise.all(values.map((x) => this.decryptSecureValues(x))).then((values) => {
-            return _.zipObject(keys, values);
-          });
-        }
-      default:
-        return Promise.resolve(config);
-    }
   }
 }
