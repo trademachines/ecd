@@ -4,7 +4,7 @@ import { ConfigModifier } from './types';
 export class PortMappingFromStringConfigModifier implements ConfigModifier {
   modify(config: any): Promise<any> {
     if (_.has(config, 'containerDefinitions') && _.isArray(config.containerDefinitions)) {
-      config.containerDefinitions = _.map(config.containerDefinitions, (v) => {
+      config.containerDefinitions = _.map(config.containerDefinitions, (v:any) => {
         if (_.isArray(v.portMappings)) {
           v.portMappings = _.map(v.portMappings, (p) => {
             if (_.isString(p) || _.isNumber(p)) {
